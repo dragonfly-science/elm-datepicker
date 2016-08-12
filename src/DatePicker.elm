@@ -7,6 +7,7 @@ module DatePicker
         , init
         , update
         , view
+        , reset
         )
 
 {-| A customizable date picker component.
@@ -128,8 +129,8 @@ init settings =
         date =
             settings.pickedDate ?> initDate
     in
-        ( DatePicker
-            <| prepareDates date
+        ( DatePicker <|
+            prepareDates date
                 { open = False
                 , forceOpen = False
                 , today = initDate
@@ -140,6 +141,20 @@ init settings =
                 }
         , Task.perform (always <| CurrentDate initDate) CurrentDate Date.now
         )
+
+
+reset : DatePicker -> DatePicker
+reset (DatePicker ({ today, currentMonth, currentDates, settings } as model)) =
+    DatePicker <|
+        prepareDates today
+            { open = False
+            , forceOpen = False
+            , today = today
+            , currentMonth = currentMonth
+            , currentDates = currentDates
+            , pickedDate = settings.pickedDate
+            , settings = settings
+            }
 
 
 prepareDates : Date -> Model -> Model
@@ -175,8 +190,8 @@ update msg (DatePicker ({ forceOpen, currentMonth, pickedDate, settings } as mod
             prepareDates (prevMonth currentMonth) model ! []
 
         Pick date ->
-            ( DatePicker
-                <| prepareDates date
+            ( DatePicker <|
+                prepareDates date
                     { model
                         | pickedDate = Just date
                         , open = False
